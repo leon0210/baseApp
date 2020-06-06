@@ -5,15 +5,18 @@
         android:id="@+id/action_home"
         android:enabled="true"
         android:title="@string/home"
+        android:icon="@mipmap/ic_launcher"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_square"
         android:enabled="true"
         android:title="@string/square"
+        android:icon="@mipmap/ic_launcher"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_wechat"
         android:enabled="true"
         android:title="临时"
+        android:icon="@mipmap/ic_launcher"
         app:showAsAction="ifRoom" />
 </menu>

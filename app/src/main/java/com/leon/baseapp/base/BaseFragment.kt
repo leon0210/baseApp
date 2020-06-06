@@ -60,6 +60,7 @@ abstract class BaseFragment : Fragment() {
      * 懒加载
      */
     open fun lazyLoad() {
+        //第一次加载的时候加载等待动画
         mLayoutStatusView?.showLoading()
         doRequest()
     }
