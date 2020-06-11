@@ -2,6 +2,8 @@ package com.leon.baseapp.http
 
 import com.leon.baseapp.entity.*
 import io.reactivex.Observable
+import kotlinx.coroutines.Deferred
+import retrofit2.Call
 import retrofit2.http.*
 
 /**
@@ -21,7 +23,8 @@ interface ApiService {
      * http://www.wanandroid.com/article/top/json
      */
     @GET("article/top/json")
-    fun getTopArticles(): Observable<HttpResult<MutableList<Article>>>
+//    fun getTopArticles(): Observable<HttpResult<MutableList<Article>>>
+    fun getTopArticles(): Deferred<HttpResult<MutableList<Article>>>
 
     /**
      * 获取文章列表

@@ -3,6 +3,7 @@ package com.cxz.wanandroid.http
 import com.cxz.wanandroid.http.interceptor.CacheInterceptor
 import com.cxz.wanandroid.http.interceptor.HeaderInterceptor
 import com.cxz.wanandroid.http.interceptor.SaveCookieInterceptor
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.leon.baseapp.BuildConfig
 import com.leon.baseapp.base.BaseApplication
 import com.leon.baseapp.constant.Constant
@@ -34,6 +35,7 @@ object RetrofitHelper {
                     //.addConverterFactory(GsonConverterFactory.create())
                     .addConverterFactory(MoshiConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addCallAdapterFactory(CoroutineCallAdapterFactory())//协程
                     .build()
         }
         return retrofit

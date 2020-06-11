@@ -1,8 +1,11 @@
 package com.leon.baseapp.base.mvp
 
+import com.cxz.wanandroid.http.RetrofitHelper
 import com.cxz.wanandroid.http.function.RetryWithDelay
+import com.leon.baseapp.entity.HttpResult
 import com.leon.baseapp.utils.ext.applySchedulers
 import io.reactivex.Observable
+import kotlinx.coroutines.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
@@ -23,9 +26,21 @@ class QuickPresenter : BasePresenter<IBaseView>() {
      *      @Streaming主要做大文件下载
      *  @Field
      */
-    fun <T> doRequest(observable: Observable<T>, success: ((T) -> Unit)? = null) {
-        observable.applySchedulers().retryWhen(RetryWithDelay())
-            .subscribe(MyObserver(mvpView, mDisposables, success))
+//    fun <T> doRequest(observable: Observable<T>, success: ((T) -> Unit)? = null) {
+//        observable.applySchedulers().retryWhen(RetryWithDelay())
+//            .subscribe(MyObserver(mvpView, mDisposables, success))
+//    }
+    fun <T> doRequest(result: Deferred<T>, success: ((T) -> Unit)? = null) {
+        println(Thread.currentThread().name)
+        GlobalScope.launch(Dispatchers.IO) {
+            val await = result.await()
+            //切到主线程来执行UI操作
+            println(Thread.currentThread().name)
+            GlobalScope.launch(Dispatchers.Main) {
+                println(Thread.currentThread().name)
+                success?.invoke(await)
+            }
+        }
     }
 
     /**

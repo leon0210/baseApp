@@ -11,6 +11,7 @@ import com.leon.baseapp.base.BaseMvpFragment
 import com.leon.baseapp.base.mvp.IBaseView
 import com.leon.baseapp.entity.Article
 import com.leon.baseapp.entity.BannerData
+import com.leon.baseapp.entity.HttpResult
 import com.leon.baseapp.ui.adapter.HomeBannerAdapter
 import com.leon.baseapp.utils.ext.getQuickColor
 import com.leon.baseapp.utils.ext.getQuickLayoutInflater
@@ -23,6 +24,11 @@ import com.youth.banner.indicator.CircleIndicator
 import com.youth.banner.util.BannerUtils
 import kotlinx.android.synthetic.main.common_fragment_refresh_layout.*
 import kotlinx.android.synthetic.main.layout_banner.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.security.auth.callback.Callback
 
 /**
  * Author: 千里
@@ -51,7 +57,12 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
             setHasFixedSize(true)
             adapter = mAdapter
             layoutManager = mLinearLayoutManager
-            addItemDecoration(DividerItemDecoration(context?.applicationContext, DividerItemDecoration.VERTICAL))
+            addItemDecoration(
+                DividerItemDecoration(
+                    context?.applicationContext,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
         val view = context?.getQuickLayoutInflater(R.layout.layout_banner)
         val banner = view?.findViewById<Banner<Any, HomeBannerAdapter>>(R.id.banner)
@@ -74,7 +85,7 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
     override fun initListener() {
         super.initListener()
         mAdapter.setOnItemClickListener { adapter, view, position ->
-            showToast( mData[position].title)
+            showToast(mData[position].title)
         }
         refreshLayout.setOnMultiPurposeListener(object : SimpleMultiPurposeListener() {
             override fun onRefresh(refreshLayout: RefreshLayout) {
@@ -111,11 +122,11 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
             }
             refreshLayout.setEnableRefresh(true)
         }
-        mPresenter?.doRequest(RetrofitHelper.service.getBanners()) {
-            mBannerData.clear()
-            mBannerData.addAll(it.data)
-            banner.adapter.notifyDataSetChanged()
-        }
+//        mPresenter?.doRequest(RetrofitHelper.service.getBanners()) {
+//            mBannerData.clear()
+//            mBannerData.addAll(it.data)
+//            banner.adapter.notifyDataSetChanged()
+//        }
     }
 
     companion object {
