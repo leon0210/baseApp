@@ -50,7 +50,7 @@ abstract class BaseMvpFragment<V : IBaseView> :
 //        dismissLoadingDialog()
     }
 
-    override fun onFailed(errorMsg: String?, errorCode: String?) {
+    override fun onFailed(errorMsg: String?, errorCode: Int?) {
         showToast(errorMsg)
     }
 

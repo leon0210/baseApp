@@ -5,7 +5,6 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.cxz.wanandroid.http.RetrofitHelper
-import com.leon.baseapp.utils.ext.logi
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import org.greenrobot.eventbus.EventBus
@@ -73,6 +72,7 @@ abstract class BasePresenter<V : IBaseView> : LifecycleObserver {
         detachView()
         owner.lifecycle.removeObserver(this)
     }
+
     companion object {
         fun getParamsFactory() = ParamsFactory()
     }

@@ -26,7 +26,7 @@ interface IBaseView {
      * @param errorCode 错误码
      * @param errorMsg 错误信息
      */
-    fun onFailed(errorMsg: String? = "", errorCode: String? = "")
+    fun onFailed(errorMsg: String? = "", errorCode: Int? = 0)
 
     /**
      * 请求异常

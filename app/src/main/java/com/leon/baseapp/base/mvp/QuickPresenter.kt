@@ -1,13 +1,16 @@
 package com.leon.baseapp.base.mvp
 
-import com.cxz.wanandroid.http.RetrofitHelper
-import com.cxz.wanandroid.http.function.RetryWithDelay
-import com.leon.baseapp.entity.HttpResult
+import com.cxz.wanandroid.mvp.model.bean.BaseBean
+import com.leon.baseapp.R
+import com.leon.baseapp.http.ErrorStatus
 import com.leon.baseapp.utils.ext.applySchedulers
+import com.leon.baseapp.utils.ext.getQuickString
+import com.leon.baseapp.utils.ext.tryCatch
 import io.reactivex.Observable
 import kotlinx.coroutines.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import java.net.UnknownHostException
 
 class QuickPresenter : BasePresenter<IBaseView>() {
 
@@ -30,16 +33,45 @@ class QuickPresenter : BasePresenter<IBaseView>() {
 //        observable.applySchedulers().retryWhen(RetryWithDelay())
 //            .subscribe(MyObserver(mvpView, mDisposables, success))
 //    }
-    fun <T> doRequest(result: Deferred<T>, success: ((T) -> Unit)? = null) {
-        println(Thread.currentThread().name)
+    /**
+     * author: 千里
+     * date: 2020/6/12 11:03
+     * describe:协程
+     */
+    fun <T> doRequest(
+        request: () -> Deferred<T>,
+        success: ((T) -> Unit)? = null,
+        failed: ((Pair<String?, Int?>) -> Unit)? = null,
+        showLoading: Boolean = true
+    ) {
+        if (showLoading) mvpView?.showLoading()
         GlobalScope.launch(Dispatchers.IO) {
-            val await = result.await()
-            //切到主线程来执行UI操作
-            println(Thread.currentThread().name)
-            GlobalScope.launch(Dispatchers.Main) {
-                println(Thread.currentThread().name)
-                success?.invoke(await)
-            }
+            tryCatch({
+                val response = request().await()
+                withContext(Dispatchers.Main) {
+                    mvpView?.hideLoading()
+                    if (response is BaseBean) {
+                        if (response.errorCode == ErrorStatus.SUCCESS) {
+                            success?.invoke(response) ?: mvpView?.onSuccess(response)
+                        } else failed?.invoke(
+                            Pair(response.errorMsg, response.errorCode)
+                        ) ?: mvpView?.onFailed(response.errorMsg, response.errorCode)
+                    } else {
+                        success?.invoke(response) ?: mvpView?.onSuccess(response)
+                    }
+                }
+            }, {
+                withContext(Dispatchers.Main) {
+                    if (showLoading) mvpView?.hideLoading()
+                    if (failed != null) {
+                        if (it is UnknownHostException) mvpView?.onFailed(getQuickString(R.string.network_unavailable_tip))
+                        else failed(Pair(it.message, -1))
+                    } else {
+                        if (it is UnknownHostException) mvpView?.onFailed(getQuickString(R.string.network_unavailable_tip))
+                        else mvpView?.onError(it)
+                    }
+                }
+            })
         }
     }
 

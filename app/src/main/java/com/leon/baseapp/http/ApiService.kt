@@ -3,7 +3,6 @@ package com.leon.baseapp.http
 import com.leon.baseapp.entity.*
 import io.reactivex.Observable
 import kotlinx.coroutines.Deferred
-import retrofit2.Call
 import retrofit2.http.*
 
 /**
@@ -16,7 +15,7 @@ interface ApiService {
      * http://www.wanandroid.com/banner/json
      */
     @GET("banner/json")
-    fun getBanners(): Observable<HttpResult<List<BannerData>>>
+    fun getBanners(): Deferred<HttpResult<List<BannerData>>>
 
     /**
      * 获取首页置顶文章列表

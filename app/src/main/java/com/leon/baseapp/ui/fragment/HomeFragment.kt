@@ -12,7 +12,6 @@ import com.leon.baseapp.base.IFactory
 import com.leon.baseapp.base.mvp.IBaseView
 import com.leon.baseapp.entity.Article
 import com.leon.baseapp.entity.BannerData
-import com.leon.baseapp.entity.HttpResult
 import com.leon.baseapp.ui.adapter.HomeBannerAdapter
 import com.leon.baseapp.utils.ext.getQuickColor
 import com.leon.baseapp.utils.ext.getQuickLayoutInflater
@@ -25,11 +24,6 @@ import com.youth.banner.indicator.CircleIndicator
 import com.youth.banner.util.BannerUtils
 import kotlinx.android.synthetic.main.common_fragment_refresh_layout.*
 import kotlinx.android.synthetic.main.layout_banner.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import javax.security.auth.callback.Callback
 
 /**
  * Author: 千里
@@ -105,7 +99,7 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
 
 
     override fun doRequest() {
-        mPresenter?.doRequest(RetrofitHelper.service.getTopArticles()) {
+        mPresenter?.doRequest({ RetrofitHelper.service.getTopArticles() },{
             val data = it.data
             mAdapter.run {
                 if (isRefresh) {
@@ -122,12 +116,25 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
                 mLayoutStatusView?.showContent()
             }
             refreshLayout.setEnableRefresh(true)
-        }
-//        mPresenter?.doRequest(RetrofitHelper.service.getBanners()) {
-//            mBannerData.clear()
-//            mBannerData.addAll(it.data)
-//            banner.adapter.notifyDataSetChanged()
-//        }
+        })
+        mPresenter?.doRequest({ RetrofitHelper.service.getBanners() },{
+            mBannerData.clear()
+            mBannerData.addAll(it.data)
+            banner.adapter.notifyDataSetChanged()
+        })
+    }
+
+    override fun onFailed(errorMsg: String?, errorCode: Int?) {
+        super.onFailed(errorMsg, errorCode)
+        refreshLayout.finishRefresh()
+        refreshLayout.setEnableRefresh(true)
+    }
+
+    override fun onError(e: Throwable) {
+        super.onError(e)
+        refreshLayout.finishRefresh()
+        refreshLayout.setEnableRefresh(true)
+        mLayoutStatusView?.showError()
     }
 
     companion object : IFactory<HomeFragment> {
