@@ -15,7 +15,7 @@ class MainActivity : BaseMvpAppCompatActivity<IBaseView>() {
     override fun attachLayoutRes(): Int = R.layout.activity_main
     override fun initView() {
         super.initView()
-        mHomeFragment = HomeFragment.getInstance()
+        mHomeFragment = HomeFragment.newInstance()
         switchFragment(mHomeFragment, "首页")
     }
 
@@ -28,7 +28,7 @@ class MainActivity : BaseMvpAppCompatActivity<IBaseView>() {
             return@setOnNavigationItemSelectedListener when (it.itemId) {
                 R.id.action_home -> {
                     if (mHomeFragment == null) {
-                        mHomeFragment = HomeFragment.getInstance()
+                        mHomeFragment = HomeFragment.newInstance()
                     }
                     switchFragment(mHomeFragment, "首页")
                     true

@@ -8,6 +8,7 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.cxz.wanandroid.http.RetrofitHelper
 import com.leon.baseapp.R
 import com.leon.baseapp.base.BaseMvpFragment
+import com.leon.baseapp.base.IFactory
 import com.leon.baseapp.base.mvp.IBaseView
 import com.leon.baseapp.entity.Article
 import com.leon.baseapp.entity.BannerData
@@ -129,8 +130,8 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
 //        }
     }
 
-    companion object {
-        fun getInstance(): HomeFragment = HomeFragment()
+    companion object : IFactory<HomeFragment> {
+        override fun newInstance(): HomeFragment = HomeFragment()
     }
 
     override fun onPause() {

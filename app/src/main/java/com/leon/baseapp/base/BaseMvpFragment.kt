@@ -1,13 +1,10 @@
 package com.leon.baseapp.base
 
 
-import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
-import com.leon.baseapp.base.mvp.BasePresenter
 import com.leon.baseapp.base.mvp.IBaseView
 import com.leon.baseapp.base.mvp.QuickPresenter
-import com.leon.baseapp.utils.ext.ToastUtil
 import com.leon.baseapp.utils.ext.ToastUtil.showToast
 
 
