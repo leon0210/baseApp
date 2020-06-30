@@ -2,13 +2,8 @@ package com.leon.baseapp.utils
 
 import android.content.Context
 import android.graphics.Color
-import android.text.TextUtils
-import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import java.io.BufferedReader
-import java.io.FileReader
-import java.io.IOException
 import java.lang.reflect.Field
 import java.util.*
 
@@ -17,15 +12,6 @@ import java.util.*
  * Created by chenxz on 2018/5/14.
  */
 object CommonUtil {
-
-
-    fun dp2px(context: Context, dpValue: Float): Int {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, context.resources.displayMetrics).toInt()
-    }
-
-    fun sp2px(context: Context, spValue: Float): Int {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, spValue, context.resources.displayMetrics).toInt()
-    }
 
     /**
      * 获取随机rgb颜色值
@@ -80,32 +66,6 @@ object CommonUtil {
 
         }
 
-    }
-
-    /**
-     * 获取当前进程名
-     */
-    fun getProcessName(pid: Int): String {
-        var reader: BufferedReader? = null
-        try {
-            reader = BufferedReader(FileReader("/proc/$pid/cmdline"))
-            var processName = reader!!.readLine()
-            if (!TextUtils.isEmpty(processName)) {
-                processName = processName.trim({ it <= ' ' })
-            }
-            return processName
-        } catch (throwable: Throwable) {
-            throwable.printStackTrace()
-        } finally {
-            try {
-                if (reader != null) {
-                    reader!!.close()
-                }
-            } catch (exception: IOException) {
-                exception.printStackTrace()
-            }
-        }
-        return ""
     }
 
 }

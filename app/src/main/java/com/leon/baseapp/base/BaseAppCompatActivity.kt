@@ -1,5 +1,6 @@
 package com.leon.baseapp.base
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentFilter
 import android.graphics.Color
@@ -17,6 +18,7 @@ import com.cxz.multiplestatusview.MultipleStatusView
 import com.cxz.wanandroid.receiver.NetworkChangeReceiver
 import com.leon.baseapp.R
 import com.leon.baseapp.constant.Constant
+import com.leon.baseapp.event.Event
 import com.leon.baseapp.event.NetworkChangeEvent
 import com.leon.baseapp.utils.*
 import com.leon.baseapp.utils.ext.getQuickColor
@@ -33,29 +35,29 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
     /**
      * 缓存上一次的网络状态
      */
-    protected var hasNetwork: Boolean by Preference(Constant.HAS_NETWORK_KEY, true)
+    private var hasNetwork: Boolean by Preference(Constant.HAS_NETWORK_KEY, true)
 
     /**
      * 网络状态变化的广播
      */
-    protected var mNetworkChangeReceiver: NetworkChangeReceiver? = null
+    private var mNetworkChangeReceiver: NetworkChangeReceiver? = null
 
     /**
      * theme color
      */
-    protected var mThemeColor: Int = SettingUtil.getColor()
+    private var mThemeColor: Int = SettingUtil.getColor()
 
     /**
      * 多种状态的 View 的切换
      */
-    protected var mLayoutStatusView: MultipleStatusView? = null
+    private var mLayoutStatusView: MultipleStatusView? = null
 
     /**
      * 提示View
      */
-    protected lateinit var mTipView: View
-    protected lateinit var mWindowManager: WindowManager
-    protected lateinit var mLayoutParams: WindowManager.LayoutParams
+    private lateinit var mTipView: View
+    private lateinit var mWindowManager: WindowManager
+    private lateinit var mLayoutParams: WindowManager.LayoutParams
     //todo 这里需要一个公共的加载框
 //    protected var mLoadingDialog: LoadingDialog? = null
 
@@ -83,7 +85,8 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
     /**
      * 是否使用 EventBus
      */
-    open fun useEventBus(): Boolean = false
+    open val isRegisterEventBus: Boolean
+        get() = false
 
     /**
      * 是否需要显示 TipView
@@ -102,7 +105,7 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(attachLayoutRes())
         KeyBoardUtil.forbidAutoOpen(this)
-        if (useEventBus()) {
+        if (isRegisterEventBus) {
             EventBus.getDefault().register(this)
         }
         initView()
@@ -158,6 +161,7 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
     /**
      * 初始化 TipView
      */
+    @SuppressLint("InflateParams")
     private fun initTipView() {
         mTipView = layoutInflater.inflate(R.layout.layout_network_tip, null)
         mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -189,23 +193,39 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
     }
 
     /**
-     * Network Change
+     * 子类重写接收到分发到事件
      */
+    open fun receiveEvent(event: Any?) {}
+
+    /**
+     * 子类重写接受到分发的粘性事件
+     */
+    open fun receiveStickyEvent(event: Any?) {}
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onNetworkChangeEvent(event: NetworkChangeEvent) {
-        hasNetwork = event.isConnected
-        if (enableNetworkTip()) {
-            if (event.isConnected) {
-                doReConnected()
-                if (mTipView != null && mTipView.parent != null) {
-                    mWindowManager.removeView(mTipView)
-                }
-            } else {
-                if (mTipView.parent == null) {
-                    mWindowManager.addView(mTipView, mLayoutParams)
+    fun onEventBusCome(event: Event<*>?) {
+        if (event?.data is NetworkChangeEvent) {
+            val networkChangeEvent = event.data as NetworkChangeEvent
+            hasNetwork = networkChangeEvent.isConnected
+            if (enableNetworkTip()) {
+                if (networkChangeEvent.isConnected) {
+                    doReConnected()
+                    if (this::mTipView.isInitialized && mTipView.parent != null) {
+                        mWindowManager.removeView(mTipView)
+                    }
+                } else {
+                    if (mTipView.parent == null) {
+                        mWindowManager.addView(mTipView, mLayoutParams)
+                    }
                 }
             }
         }
+        event?.let { receiveEvent(it.data) }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    fun onStickyEventBusCome(event: Event<*>?) {
+        event?.let { receiveStickyEvent(it.data) }
     }
 
     /**
@@ -235,7 +255,8 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+        if (item == null) return false
+        when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
             }
@@ -264,7 +285,7 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (useEventBus()) {
+        if (isRegisterEventBus) {
             EventBus.getDefault().unregister(this)
         }
         CommonUtil.fixInputMethodManagerLeak(this)
@@ -273,7 +294,7 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        if (mTipView != null && mTipView.parent != null) {
+        if (this::mTipView.isInitialized && mTipView.parent != null) {
             mWindowManager.removeView(mTipView)
         }
     }

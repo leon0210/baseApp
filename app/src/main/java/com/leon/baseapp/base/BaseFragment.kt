@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.cxz.multiplestatusview.MultipleStatusView
 import com.leon.baseapp.R
 import com.leon.baseapp.constant.Constant
+import com.leon.baseapp.event.Event
 import com.leon.baseapp.event.NetworkChangeEvent
 import com.leon.baseapp.utils.Preference
 import org.greenrobot.eventbus.EventBus
@@ -73,7 +74,8 @@ abstract class BaseFragment : Fragment() {
     /**
      * 是否使用 EventBus
      */
-    open fun useEventBus(): Boolean = true
+    open val isRegisterEventBus: Boolean
+        get() = false
 
     /**
      * 无网状态—>有网状态 的自动重连操作，子类可重写该方法
@@ -100,7 +102,7 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (useEventBus()) {
+        if (isRegisterEventBus) {
             EventBus.getDefault().register(this)
         }
         isViewPrepare = true
@@ -123,16 +125,36 @@ abstract class BaseFragment : Fragment() {
         lazyLoad()
     }
 
+    /**
+     * 子类重写接收到分发到事件
+     */
+    open fun receiveEvent(event: Any?) {}
+
+    /**
+     * 子类重写接受到分发的粘性事件
+     */
+    open fun receiveStickyEvent(event: Any?) {}
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onNetworkChangeEvent(event: NetworkChangeEvent) {
-        if (event.isConnected) {
-            doReConnected()
+    fun onEventBusCome(event: Event<*>?) {
+        if (event?.data is NetworkChangeEvent) {
+            val networkChangeEvent = event.data as NetworkChangeEvent
+            if (networkChangeEvent.isConnected) {
+                doReConnected()
+            }
         }
+        event?.let { receiveEvent(it.data) }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    fun onStickyEventBusCome(event: Event<*>?) {
+        event?.let { receiveStickyEvent(it.data) }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
-        if (useEventBus()) {
+        if (isRegisterEventBus) {
             EventBus.getDefault().unregister(this)
         }
         activity?.let { BaseApplication.getRefWatcher(it)?.watch(activity) }

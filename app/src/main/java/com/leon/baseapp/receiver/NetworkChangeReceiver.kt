@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.leon.baseapp.constant.Constant
+import com.leon.baseapp.event.Event
 import com.leon.baseapp.event.NetworkChangeEvent
 import com.leon.baseapp.utils.NetWorkUtil
 import com.leon.baseapp.utils.Preference
@@ -24,10 +25,10 @@ class NetworkChangeReceiver : BroadcastReceiver() {
         val isConnected = NetWorkUtil.isNetworkConnected(context)
         if (isConnected) {
             if (isConnected != hasNetwork) {
-                EventBus.getDefault().post(NetworkChangeEvent(isConnected))
+                EventBus.getDefault().post(Event(NetworkChangeEvent(isConnected)))
             }
         } else {
-            EventBus.getDefault().post(NetworkChangeEvent(isConnected))
+            EventBus.getDefault().post(Event(NetworkChangeEvent(isConnected)))
         }
     }
 
