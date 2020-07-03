@@ -14,14 +14,15 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.cxz.wanandroid.http.RetrofitHelper
 import com.leon.baseapp.R
+import com.leon.baseapp.base.BaseApplication
 import com.leon.baseapp.base.BaseMvpFragment
 import com.leon.baseapp.base.IFactory
 import com.leon.baseapp.base.mvp.IBaseView
 import com.leon.baseapp.entity.BannerData
 import com.leon.baseapp.ui.adapter.HomeBannerAdapter
-import com.leon.baseapp.utils.ext.getQuickColor
-import com.leon.baseapp.utils.ext.getQuickLayoutInflater
-import com.leon.baseapp.utils.ext.showToast
+import com.leon.baseapp.utils.FileUtil
+import com.leon.baseapp.utils.SDCardUtil
+import com.leon.baseapp.utils.ext.*
 import com.leon.baseapp.utils.permission.OnPermission
 import com.leon.baseapp.utils.permission.Permission
 import com.leon.baseapp.utils.permission.XXPermissions
@@ -41,7 +42,7 @@ import kotlinx.android.synthetic.main.layout_banner.*
  * Description:
  */
 class HomeFragment : BaseMvpFragment<IBaseView>() {
-    private val mData = mutableListOf("判断是否有文件读写权限", "获取权限", "获取权限2")
+    private val mData = mutableListOf("判断是否有文件读写权限", "获取权限", "获取权限2", "Runnable")
     private val mBannerData = mutableListOf<BannerData>()
     private val mLinearLayoutManager: LinearLayoutManager by lazy { LinearLayoutManager(context?.applicationContext) }
     private val mAdapter: BaseQuickAdapter<String, BaseViewHolder> by lazy {
@@ -175,6 +176,12 @@ class HomeFragment : BaseMvpFragment<IBaseView>() {
                                 }
                             }
                         })
+                }
+                3 -> {
+                    loge(Thread.currentThread().name)
+                    loge(FileUtil.getAbsolutePath(BaseApplication.instance.externalCacheDir)!!)
+                   logi(SDCardUtil.getSDCardInfo().toString())
+                    showToast(FileUtil.getExternalAppFilesPath()?.absolutePath)
                 }
             }
         }

@@ -125,7 +125,6 @@ class PermissionFragment : Fragment(), Runnable {
                 }
             }
         }
-
         // 获取授予权限
         val succeedPermissions: List<String?> = getSucceedPermissions(permissions, grantResults)
         // 如果请求成功的权限集合大小和请求的数组一样大时证明权限已经全部授予
@@ -143,7 +142,6 @@ class PermissionFragment : Fragment(), Runnable {
                 requestPermission()
                 return
             }
-
             // 代表申请的权限中有不同意授予的，如果有某个权限被永久拒绝就返回true给开发人员，让开发者引导用户去设置界面开启权限
             callback.noPermission(failPermissions, checkMorePermissionPermanentDenied(activity!!, failPermissions))
             // 证明还有一部分权限被成功授予，回调成功接口
@@ -151,10 +149,9 @@ class PermissionFragment : Fragment(), Runnable {
                 callback.hasPermission(succeedPermissions, false)
             }
         }
-
         // 权限回调结束后要删除集合中的对象，避免重复请求
         CALLBACKS.remove(requestCode)
-        fragmentManager!!.beginTransaction().remove(this).commit()
+        activity?.supportFragmentManager!!.beginTransaction().remove(this).commitNowAllowingStateLoss()
     }
 
     /** 是否已经回调了，避免安装权限和悬浮窗同时请求导致的重复回调  */

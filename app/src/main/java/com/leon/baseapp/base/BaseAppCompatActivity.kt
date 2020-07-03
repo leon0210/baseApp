@@ -137,7 +137,7 @@ abstract class BaseAppCompatActivity : AppCompatActivity() {
         } else {
             getQuickColor(R.color.colorPrimary)
         }
-        StatusBarUtil.setColor(this, mThemeColor, 0)
+        BarUtils.setStatusBarColor(this, mThemeColor)
         if (this.supportActionBar != null) {
             this.supportActionBar?.setBackgroundDrawable(ColorDrawable(mThemeColor))
         }

@@ -65,7 +65,13 @@ object CommonUtil {
             }
 
         }
-
     }
 
+    interface Consumer<T> {
+        fun accept(t: T)
+    }
+
+    interface Supplier<T> {
+        fun get(): T
+    }
 }
